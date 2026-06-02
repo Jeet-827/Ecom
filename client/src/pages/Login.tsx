@@ -24,9 +24,9 @@ export default function Login() {
     setLoading(true);
     setFeedback(null);
     try {
-      const res = await axios.post('http://localhost:5001/auth/signin', formData);
+      const res = await axios.post('http://localhost:5000/api/auth/signin', formData);
       setFeedback({ message: res.data.message || "Login successful! Redirecting...", isError: false });
-      
+
       if (res.data.accessToken) {
         localStorage.setItem('accessToken', res.data.accessToken);
       }
@@ -51,7 +51,7 @@ export default function Login() {
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl pointer-events-none animate-pulse duration-[10000ms]"></div>
 
       <div className="relative w-full max-w-md backdrop-blur-xl bg-white/80 border border-slate-200/80 shadow-xl rounded-3xl p-8 md:p-10 transition-all duration-500 hover:border-slate-300/50">
-        
+
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/20 mb-4 animate-bounce duration-[3000ms]">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
@@ -65,11 +65,10 @@ export default function Login() {
         </div>
 
         {feedback && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${
-            feedback.isError 
-              ? 'bg-rose-50 border-rose-100 text-rose-800' 
-              : 'bg-emerald-50 border-emerald-100 text-emerald-800'
-          }`}>
+          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${feedback.isError
+            ? 'bg-rose-50 border-rose-100 text-rose-800'
+            : 'bg-emerald-50 border-emerald-100 text-emerald-800'
+            }`}>
             {feedback.message}
           </div>
         )}
@@ -83,9 +82,9 @@ export default function Login() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
               </span>
-              <input 
-                type="email" 
-                placeholder="name@company.com" 
+              <input
+                type="email"
+                placeholder="name@company.com"
                 className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
                 required
                 name='email'
@@ -107,9 +106,9 @@ export default function Login() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                 </svg>
               </span>
-              <input 
-                type="password" 
-                placeholder="••••••••" 
+              <input
+                type="password"
+                placeholder="••••••••"
                 className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
                 required
                 name='password'
@@ -122,9 +121,9 @@ export default function Login() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <input 
-                id="remember-me" 
-                type="checkbox" 
+              <input
+                id="remember-me"
+                type="checkbox"
                 className="w-4 h-4 rounded border-slate-300 bg-slate-50 text-indigo-600 focus:ring-indigo-500/10 focus:ring-offset-white"
                 disabled={loading}
               />
@@ -132,8 +131,8 @@ export default function Login() {
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:-translate-y-[1px] active:translate-y-0 shadow-lg shadow-indigo-600/15 hover:shadow-indigo-600/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >

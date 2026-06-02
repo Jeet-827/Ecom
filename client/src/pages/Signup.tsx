@@ -26,7 +26,7 @@ export default function Signup() {
     setLoading(true);
     setFeedback(null);
     try {
-      const res = await axios.post('http://localhost:5001/auth/signup', userData);
+      const res = await axios.post('http://localhost:5000/api/auth/signup', userData);
       setFeedback({ message: res.data.message || "Account created successfully! Redirecting to login...", isError: false });
       setTimeout(() => {
         navigate('/login');
@@ -60,11 +60,10 @@ export default function Signup() {
         </div>
 
         {feedback && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${
-            feedback.isError 
-              ? 'bg-rose-50 border-rose-100 text-rose-800' 
-              : 'bg-emerald-50 border-emerald-100 text-emerald-800'
-          }`}>
+          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${feedback.isError
+            ? 'bg-rose-50 border-rose-100 text-rose-800'
+            : 'bg-emerald-50 border-emerald-100 text-emerald-800'
+            }`}>
             {feedback.message}
           </div>
         )}
