@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [isAdminToggle, setIsAdminToggle] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null);
 
@@ -23,36 +26,36 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setFeedback(null);
-    try {
-      const res = await axios.post('http://localhost:5000/api/auth/signin', formData);
-      setFeedback({ message: res.data.message || "Login successful! Redirecting...", isError: false });
-
-      if (res.data.accessToken) {
-        localStorage.setItem('accessToken', res.data.accessToken);
-      }
-
+    
+    const result = await login(formData.email, formData.password, isAdminToggle);
+    
+    if (result.success) {
+      setFeedback({ message: result.message, isError: false });
       setTimeout(() => {
-        setFeedback({ message: "Successfully logged in as: " + res.data.user.username, isError: false });
-      }, 1500);
-
-    } catch (error: any) {
+        if (isAdminToggle) {
+          navigate('/admin');
+        } else {
+          navigate('/products');
+        }
+      }, 1200);
+    } else {
       setFeedback({
-        message: error.response?.data?.message || "Invalid email or password.",
+        message: result.message,
         isError: true
       });
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-slate-50 text-slate-800">
+      {/* Background blobs */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none animate-pulse duration-[8000ms]"></div>
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl pointer-events-none animate-pulse duration-[10000ms]"></div>
 
       <div className="relative w-full max-w-md backdrop-blur-xl bg-white/80 border border-slate-200/80 shadow-xl rounded-3xl p-8 md:p-10 transition-all duration-500 hover:border-slate-300/50">
-
-        <div className="flex flex-col items-center mb-8">
+        
+        <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/20 mb-4 animate-bounce duration-[3000ms]">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
@@ -64,16 +67,46 @@ export default function Login() {
           <p className="text-sm text-slate-500 mt-1">Sign in to your account</p>
         </div>
 
+        {/* User / Admin Toggle */}
+        <div className="relative bg-slate-100 p-1 rounded-2xl border border-slate-200 flex mb-6">
+          <div
+            className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-xl transition-all duration-300 ease-out shadow-sm border border-slate-200/50 ${
+              isAdminToggle ? 'translate-x-full' : ''
+            }`}
+          />
+          <button
+            type="button"
+            onClick={() => setIsAdminToggle(false)}
+            className={`relative z-10 w-1/2 py-2 text-xs font-bold rounded-xl text-center transition-colors duration-200 focus:outline-none ${
+              !isAdminToggle ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+            }`}
+            disabled={loading}
+          >
+            Customer Portal
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAdminToggle(true)}
+            className={`relative z-10 w-1/2 py-2 text-xs font-bold rounded-xl text-center transition-colors duration-200 focus:outline-none ${
+              isAdminToggle ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
+            }`}
+            disabled={loading}
+          >
+            Admin Portal
+          </button>
+        </div>
+
         {feedback && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${feedback.isError
-            ? 'bg-rose-50 border-rose-100 text-rose-800'
-            : 'bg-emerald-50 border-emerald-100 text-emerald-800'
-            }`}>
+          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${
+            feedback.isError
+              ? 'bg-rose-50 border-rose-100 text-rose-800'
+              : 'bg-emerald-50 border-emerald-100 text-emerald-800'
+          }`}>
             {feedback.message}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
             <div className="relative">

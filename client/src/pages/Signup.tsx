@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { signup } = useAuth();
+  
   const [userData, setuserData] = useState({
     username: '',
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setuserData((prev) => ({
       ...prev,
       [name]: value,
@@ -25,18 +26,19 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     setFeedback(null);
-    try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', userData);
-      setFeedback({ message: res.data.message || "Account created successfully! Redirecting to login...", isError: false });
+    
+    const result = await signup(userData.username, userData.email, userData.password);
+    
+    if (result.success) {
+      setFeedback({ message: result.message + " Redirecting...", isError: false });
       setTimeout(() => {
-        navigate('/login');
+        navigate('/products');
       }, 1500);
-    } catch (error: any) {
+    } else {
       setFeedback({
-        message: error.response?.data?.message || "Something went wrong. Please try again.",
+        message: result.message,
         isError: true
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -45,6 +47,7 @@ export default function Signup() {
     <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-slate-50 text-slate-800">
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none animate-pulse duration-[8000ms]"></div>
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl pointer-events-none animate-pulse duration-[10000ms]"></div>
+      
       <div className="relative w-full max-w-md backdrop-blur-xl bg-white/80 border border-slate-200/80 shadow-xl rounded-3xl p-8 md:p-10 transition-all duration-500 hover:border-slate-300/50">
 
         <div className="flex flex-col items-center mb-8">
@@ -60,10 +63,11 @@ export default function Signup() {
         </div>
 
         {feedback && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${feedback.isError
-            ? 'bg-rose-50 border-rose-100 text-rose-800'
-            : 'bg-emerald-50 border-emerald-100 text-emerald-800'
-            }`}>
+          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${
+            feedback.isError
+              ? 'bg-rose-50 border-rose-100 text-rose-800'
+              : 'bg-emerald-50 border-emerald-100 text-emerald-800'
+          }`}>
             {feedback.message}
           </div>
         )}

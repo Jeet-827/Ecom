@@ -8,7 +8,8 @@
     "auth": "cd auth && npm run dev",
     "getway": "cd getway && npm run dev",
     "client": "cd .. && cd client && npm run dev",
-    "dev": "concurrently \"npm run auth\" \"npm run getway\" \"npm run client\""
+    "product": "cd Product && npm run dev",
+    "dev": "concurrently \"npm run auth\" \"npm run getway\" \"npm run client\" \"npm run product\""
   },
   "keywords": [],
   "author": "",

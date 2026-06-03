@@ -15,9 +15,20 @@ app.use(
 );
 
 app.use(
-  "/api",
+  "/api/auth",
   createProxyMiddleware({
     target: "http://localhost:5001",
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api": "",
+    },
+  })
+);
+
+app.use(
+  "/api/products",
+  createProxyMiddleware({
+    target: "http://localhost:5002",
     changeOrigin: true,
     pathRewrite: {
       "^/api": "",

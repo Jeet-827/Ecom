@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import userModel from "../Model/useSchema.js";
 import { genRateAccess, genRateRefresh } from "../util/token.util.js";
-
+import admineSchema from "../Model/admine.Schema.js";
+import jwt from 'jsonwebtoken'
 export const SignUp = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -48,6 +49,7 @@ export const SignUp = async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
+                role: user.role || "user"
             },
         });
 
@@ -63,7 +65,7 @@ export const SignUp = async (req, res) => {
 
 export const SignIn = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { email, password } = req.body;
 
         if ( !email || !password) {
             return res.status(400).json({
@@ -76,7 +78,7 @@ export const SignIn = async (req, res) => {
         if (!findUser) {
             return res.status(409).json({
                 message: "User does not exist. Please Sign Up."
-            });
+            });    
         }
         const CheckPass = await bcrypt.compare(password, findUser.password)
         if(!CheckPass){
@@ -101,6 +103,7 @@ export const SignIn = async (req, res) => {
                 _id: findUser._id,
                 username: findUser.username,
                 email: findUser.email,
+                role: findUser.role || "user"
             },
         });
 
@@ -110,6 +113,70 @@ export const SignIn = async (req, res) => {
         return res.status(500).json({
             message: "Internal Server Error",
             error: error.message,
+        });
+    }
+};
+
+
+export const IsAdmin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "All fields are required"
+            });
+        }
+
+        const admin = await admineSchema.findOne({ email });
+
+        if (!admin || admin.role !== "admin") {
+            return res.status(403).json({
+                message: "You don't have admin rights"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(
+            password,
+            admin.password
+        );
+
+        if (!isMatch) {
+            return res.status(401).json({
+                message: "Invalid credentials"
+            });
+        }
+
+        const accessToken = jwt.sign(
+            {
+                adminId: admin._id,
+                role: admin.role
+            },
+            process.env.ADMIN_TOKEN_KEY,
+            { expiresIn: "7m" }
+        );
+
+        const refreshToken = jwt.sign(
+            {
+                adminId: admin._id,
+                role: admin.role
+            },
+            process.env.ADMIN_REFRESH_TOKEN_KEY,
+            { expiresIn: "1h" }
+        );
+
+        return res.status(200).json({
+            message: "Admin login successful",
+            accessToken,
+            refreshToken,
+            admin
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Server error"
         });
     }
 };
