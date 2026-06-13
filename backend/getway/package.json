@@ -2,10 +2,10 @@
   "name": "getway",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx --yes nodemon server.js"
+    "dev": "npx nodemon app.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +15,6 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "http-proxy-middleware": "^4.0.0"
+    "http-proxy-middleware": "^4.1.0"
   }
 }

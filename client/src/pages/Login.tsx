@@ -1,217 +1,114 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
+import { useDispatch, useSelector } from "react-redux";
+import { setToken } from "../stores/feature/AuthSclice";
+import type { RootState } from "../stores/store";
 
-export default function Login() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [isAdminToggle, setIsAdminToggle] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setFeedback(null);
-    
-    const result = await login(formData.email, formData.password, isAdminToggle);
-    
-    if (result.success) {
-      setFeedback({ message: result.message, isError: false });
-      setTimeout(() => {
-        if (isAdminToggle) {
-          navigate('/admin');
-        } else {
-          navigate('/products');
-        }
-      }, 1200);
-    } else {
-      setFeedback({
-        message: result.message,
-        isError: true
-      });
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-slate-50 text-slate-800">
-      {/* Background blobs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none animate-pulse duration-[8000ms]"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl pointer-events-none animate-pulse duration-[10000ms]"></div>
-
-      <div className="relative w-full max-w-md backdrop-blur-xl bg-white/80 border border-slate-200/80 shadow-xl rounded-3xl p-8 md:p-10 transition-all duration-500 hover:border-slate-300/50">
-        
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/20 mb-4 animate-bounce duration-[3000ms]">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight">
-            Antigravity Portal
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">Sign in to your account</p>
-        </div>
-
-        {/* User / Admin Toggle */}
-        <div className="relative bg-slate-100 p-1 rounded-2xl border border-slate-200 flex mb-6">
-          <div
-            className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-xl transition-all duration-300 ease-out shadow-sm border border-slate-200/50 ${
-              isAdminToggle ? 'translate-x-full' : ''
-            }`}
-          />
-          <button
-            type="button"
-            onClick={() => setIsAdminToggle(false)}
-            className={`relative z-10 w-1/2 py-2 text-xs font-bold rounded-xl text-center transition-colors duration-200 focus:outline-none ${
-              !isAdminToggle ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
-            }`}
-            disabled={loading}
-          >
-            Customer Portal
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsAdminToggle(true)}
-            className={`relative z-10 w-1/2 py-2 text-xs font-bold rounded-xl text-center transition-colors duration-200 focus:outline-none ${
-              isAdminToggle ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-700'
-            }`}
-            disabled={loading}
-          >
-            Admin Portal
-          </button>
-        </div>
-
-        {feedback && (
-          <div className={`mb-6 p-4 rounded-xl text-sm font-medium border ${
-            feedback.isError
-              ? 'bg-rose-50 border-rose-100 text-rose-800'
-              : 'bg-emerald-50 border-emerald-100 text-emerald-800'
-          }`}>
-            {feedback.message}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                </svg>
-              </span>
-              <input
-                type="email"
-                placeholder="name@company.com"
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
-                required
-                name='email'
-                value={formData.email}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Password</label>
-              <a href="#" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">Forgot password?</a>
-            </div>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                </svg>
-              </span>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full pl-11 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
-                required
-                name='password'
-                value={formData.password}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                type="checkbox"
-                className="w-4 h-4 rounded border-slate-300 bg-slate-50 text-indigo-600 focus:ring-indigo-500/10 focus:ring-offset-white"
-                disabled={loading}
-              />
-              <label htmlFor="remember-me" className="ml-2.5 text-sm text-slate-500 select-none">Remember device</label>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:-translate-y-[1px] active:translate-y-0 shadow-lg shadow-indigo-600/15 hover:shadow-indigo-600/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
-          >
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="text-center mt-6">
-          <p className="text-sm text-slate-500">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
-              Sign Up
-            </Link>
-          </p>
-        </div>
-
-        <div className="mt-8">
-          <div className="relative flex items-center justify-center mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200"></div>
-            </div>
-            <span className="relative z-10 px-4 bg-white text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Or continue with
-            </span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <button className="flex items-center justify-center py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors focus:outline-none cursor-pointer">
-              <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.706 0 3.26.6 4.498 1.582l2.437-2.437C17.37 1.7 14.96 1 12.24 1 6.58 1 2 5.58 2 11.24s4.58 10.24 10.24 10.24c5.795 0 10.254-4.074 10.254-10.24 0-.695-.08-1.355-.22-1.955H12.24z" />
-              </svg>
-            </button>
-            <button className="flex items-center justify-center py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors focus:outline-none cursor-pointer">
-              <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
-              </svg>
-            </button>
-            <button className="flex items-center justify-center py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors focus:outline-none cursor-pointer">
-              <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.5-.64.73-1.2 1.87-1.05 2.98 1.12.09 2.27-.56 3-1.42z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
+interface LoginData {
+    email: string;
+    password: string;
 }
+
+const Signin = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const token = useSelector((state: RootState) => state.token.accesstoken);
+    const [userData, setUserData] = useState<LoginData>({
+        email: "",
+        password: "",
+    });
+
+    useEffect(() => {
+        if (token) {
+            navigate("/dashboard");
+        }
+    }, [token, navigate]);
+    const [loading, setLoading] = useState(false);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setUserData({
+            ...userData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const res = await api.post("/login", userData);
+            dispatch(setToken(res.data.accessToken));
+            alert("Signed in successfully!");
+            navigate("/dashboard");
+        } catch (error: any) {
+            console.error(error);
+            alert(error.response?.data?.message || "Invalid credentials");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-tr from-blue-50 to-indigo-100 px-4">
+            <div className="w-full max-w-md bg-white/85 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-white/20 h-130 flex flex-col justify-between transition-all duration-300 hover:shadow-indigo-200/50">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-center text-gray-800 tracking-tight">
+                        Sign In
+                    </h1>
+                    <p className="text-center text-gray-500 mt-2 text-sm">
+                        Welcome back! Please enter your details.
+                    </p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-center gap-4 mt-6">
+                    <input
+                        required
+                        type="email"
+                        name="email"
+                        value={userData.email}
+                        placeholder="Enter email"
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50 backdrop-blur-sm transition"
+                    />
+
+                    <input
+                        required
+                        type="password"
+                        name="password"
+                        value={userData.password}
+                        placeholder="Enter password"
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50 backdrop-blur-sm transition"
+                    />
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition shadow-md hover:shadow-lg active:scale-[0.98]"
+                    >
+                        {loading && (
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        )}
+                        {loading ? "Signing In..." : "Sign In"}
+                    </button>
+                </form>
+
+                <div className="text-center mt-4">
+                    <p className="text-gray-600 text-sm">
+                        Create an account?{" "}
+                        <Link
+                            to="/"
+                            className="text-blue-600 font-semibold hover:text-blue-700 transition"
+                        >
+                            Signup
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Signin;

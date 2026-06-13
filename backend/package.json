@@ -5,20 +5,22 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "auth": "cd auth && npm run dev",
     "getway": "cd getway && npm run dev",
-    "client": "cd .. && cd client && npm run dev",
-    "product": "cd Product && npm run dev",
-    "dev": "concurrently \"npm run auth\" \"npm run getway\" \"npm run client\" \"npm run product\""
+    "auth": "cd auth && npm run dev",
+    "products": "cd products && npm run dev",
+    "dev": "concurrently \"npm run auth\" \"npm run getway\" \"npm run products\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
-    "http-proxy-middleware": "^4.0.0"
-  },
-  "devDependencies": {
-    "concurrently": "^10.0.3"
+    "bcrypt": "^6.0.0",
+    "concurrently": "^10.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.7.0"
   }
 }

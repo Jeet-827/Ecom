@@ -2,10 +2,10 @@
   "name": "auth",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx --yes nodemon server.js"
+    "dev": "npx nodemon app.js"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +17,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.3"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.7.0"
   }
 }
