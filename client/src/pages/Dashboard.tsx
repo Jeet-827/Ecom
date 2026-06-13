@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, ShoppingCart, Heart, Star, User, ChevronDown, Plus, Minus, Trash2, X } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { clearToke } from '../stores/feature/AuthSclice';

@@ -2,9 +2,9 @@ import axios from "axios";
 import { store } from "./stores/store";
 import { setToken, clearToke } from "./stores/feature/AuthSclice";
 
-const attachInterceptors = (instance, refreshUrl) => {
+const attachInterceptors = (instance: any, refreshUrl: string) => {
   instance.interceptors.request.use(
-    (config) => {
+    (config: any) => {
       const state = store.getState();
       const token = state.token.accesstoken;
       if (token) {
@@ -12,14 +12,14 @@ const attachInterceptors = (instance, refreshUrl) => {
       }
       return config;
     },
-    (error) => {
+    (error: any) => {
       return Promise.reject(error);
     }
   );
 
   instance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
+    (response: any) => response,
+    async (error: any) => {
       const originalRequest = error.config;
 
       if (error.response?.status === 401 && !originalRequest._retry) {
