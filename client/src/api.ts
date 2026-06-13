@@ -48,16 +48,19 @@ const attachInterceptors = (instance, refreshUrl) => {
   );
 };
 
+const authBaseUrl = import.meta.env.VITE_AUTH_API_URL || "http://localhost:4002/api/v1/auth";
+const productsBaseUrl = import.meta.env.VITE_PRODUCTS_API_URL || "http://localhost:4002/api/v1/products";
+
 const api = axios.create({
-  baseURL: "http://localhost:4002/api/v1/auth",
+  baseURL: authBaseUrl,
   withCredentials: true, 
 });
-attachInterceptors(api, "http://localhost:4002/api/v1/auth/refresh");
+attachInterceptors(api, `${authBaseUrl}/refresh`);
 
 export const productApi = axios.create({
-  baseURL: "http://localhost:4002/api/v1/products",
+  baseURL: productsBaseUrl,
   withCredentials: true,
 });
-attachInterceptors(productApi, "http://localhost:4002/api/v1/auth/refresh");
+attachInterceptors(productApi, `${authBaseUrl}/refresh`);
 
 export default api;
